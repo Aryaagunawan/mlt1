@@ -39,48 +39,175 @@ Melalui pendekatan predictive analytics, proyek ini bertujuan untuk membangun mo
 - Menggunakan teknik feature importance untuk mengevaluasi variabel yang paling berpengaruh terhadap prediksi rating pelanggan.
 
 ## Data Understanding
-Paragraf awal bagian ini menjelaskan informasi mengenai data yang Anda gunakan dalam proyek. Sertakan juga sumber atau tautan untuk mengunduh dataset. Contoh: [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Restaurant+%26+consumer+data).
 
-Selanjutnya uraikanlah seluruh variabel atau fitur pada data. Sebagai contoh:  
+Dataset yang digunakan dalam proyek ini berasal dari [Fashion Retail Sales Dataset](https://www.kaggle.com/datasets/atharvasoundankar/fashion-retail-sales) yang tersedia di Kaggle. Dataset ini berisi 3.400 entri transaksi yang memuat informasi penting terkait penjualan ritel fashion.
 
-### Variabel-variabel pada Restaurant UCI dataset adalah sebagai berikut:
-- accepts : merupakan jenis pembayaran yang diterima pada restoran tertentu.
-- cuisine : merupakan jenis masakan yang disajikan pada restoran.
-- dst
+### Variabel pada Dataset
 
-**Rubrik/Kriteria Tambahan (Opsional)**:
-- Melakukan beberapa tahapan yang diperlukan untuk memahami data, contohnya teknik visualisasi data atau exploratory data analysis.
+| Nama Kolom | Tipe Data | Deskripsi |
+|------------|-----------|-----------|
+| `Customer Reference ID` | Object | ID unik pelanggan |
+| `Item Purchased` | Object | Jenis barang fashion yang dibeli |
+| `Purchase Amount (USD)` | Float | Jumlah pembayaran dalam USD |
+| `Date Purchase` | Object | Tanggal pembelian |
+| `Review Rating` | Int | Nilai rating ulasan pelanggan (1–5) |
+| `Payment Method` | Object | Metode pembayaran (Cash / Credit Card) |
+
+### Eksplorasi Data
+
+- Terdapat **650 baris dengan nilai kosong** pada `Purchase Amount (USD)` dan **324 baris kosong** pada `Review Rating`. Semua baris tersebut dihapus dalam tahap data preparation.
+- Distribusi `Review Rating` menunjukkan median di angka 3 dengan persebaran yang cukup seimbang.
+- Kolom `Purchase Amount` memiliki nilai maksimal sangat tinggi (hingga $4.932), mengindikasikan adanya outlier.
+
+
+### Exploratory Data Analysis (EDA):
+![image](https://github.com/user-attachments/assets/fa63fbdd-f1e6-45fb-89db-dc6813850b7b)
+
+
+### Distribusi Review Rating Berdasarkan Metode Pembayaran
+
+![image](https://github.com/user-attachments/assets/6baf65bd-a43b-4bc5-be2e-f0c0637f0cc2)
+
 
 ## Data Preparation
-Pada bagian ini Anda menerapkan dan menyebutkan teknik data preparation yang dilakukan. Teknik yang digunakan pada notebook dan laporan harus berurutan.
+Tahapan data preparation dilakukan secara berurutan sebagai berikut:
 
-**Rubrik/Kriteria Tambahan (Opsional)**: 
-- Menjelaskan proses data preparation yang dilakukan
-- Menjelaskan alasan mengapa diperlukan tahapan data preparation tersebut.
+1. One-Hot Encoding
+
+- Fitur kategorikal Item Purchased dan Payment Method diubah menjadi format numerik menggunakan one-hot encoding.
+
+2. Ekstraksi Fitur dari Tanggal
+
+- Kolom Date Purchase dikonversi menjadi tipe datetime.
+
+- Fitur Purchase Month diekstrak dari kolom tanggal untuk menangkap pola musiman.
+
+3. Pembersihan Data
+
+- Menghapus baris dengan nilai kosong pada kolom Purchase Amount (USD) dan Review Rating.
+
+4. Drop Kolom Tidak Digunakan
+
+- Kolom Date Purchase dihapus karena tidak lagi dibutuhkan setelah Purchase Month diekstrak.
+
+5. Feature Scaling
+
+- Data numerik diskalakan menggunakan StandardScaler untuk menyeragamkan skala fitur.
+
+6. Pemisahan Data
+
+- Dataset dibagi menjadi 80% data latih dan 20% data uji untuk evaluasi model yang adil.
+
+
+### Analisis PCA
+
+![image](https://github.com/user-attachments/assets/189c48a8-f9f5-4a98-9f5d-35d86acfc90f)
+
 
 ## Modeling
-Tahapan ini membahas mengenai model machine learning yang digunakan untuk menyelesaikan permasalahan. Anda perlu menjelaskan tahapan dan parameter yang digunakan pada proses pemodelan.
+# Modeling Machine Learning Regression
 
-**Rubrik/Kriteria Tambahan (Opsional)**: 
-- Menjelaskan kelebihan dan kekurangan dari setiap algoritma yang digunakan.
-- Jika menggunakan satu algoritma pada solution statement, lakukan proses improvement terhadap model dengan hyperparameter tuning. **Jelaskan proses improvement yang dilakukan**.
-- Jika menggunakan dua atau lebih algoritma pada solution statement, maka pilih model terbaik sebagai solusi. **Jelaskan mengapa memilih model tersebut sebagai model terbaik**.
+## Deskripsi
+
+Tahapan ini membahas model machine learning yang digunakan untuk menyelesaikan permasalahan regresi. Data sudah melalui reduksi dimensi dengan PCA sehingga pelatihan dilakukan pada fitur hasil PCA (`X_train_pca`).
+
+---
+
+## Algoritma yang Digunakan
+
+1. **K-Nearest Neighbors Regressor (KNN)**  
+   - Parameter utama: `n_neighbors=5`  
+   - Prediksi dilakukan dengan rata-rata target dari 5 tetangga terdekat.
+
+2. **Random Forest Regressor (RF)**  
+   - Parameter utama: `n_estimators=100`, `random_state=42`  
+   - Ensemble pohon keputusan, hasil prediksi rata-rata dari semua pohon.
+
+3. **AdaBoost Regressor (Ada)**  
+   - Parameter utama: `n_estimators=100`, `random_state=42`  
+   - Metode boosting yang menggabungkan model lemah secara berturut-turut.
+
+4. **Gradient Boosting Regressor (GB)**  
+   - Parameter utama: `n_estimators=100`, `random_state=42`  
+   - Boosting yang mengurangi error residual secara bertahap menggunakan gradien.
+
+---
+
+## Kelebihan dan Kekurangan Algoritma
+
+| Algoritma      | Kelebihan                                              | Kekurangan                                             |
+|----------------|--------------------------------------------------------|--------------------------------------------------------|
+| **KNN**        | Sederhana, tidak perlu asumsi distribusi               | Sensitif skala, lambat untuk data besar, kurang efisien di dimensi tinggi |
+| **Random Forest** | Robust terhadap overfitting, mudah tuning, kuat menangani data kompleks | Model besar, sulit interpretasi                        |
+| **AdaBoost**   | Meningkatkan akurasi, adaptif terhadap kesalahan       | Sensitif noise dan outlier                              |
+| **Gradient Boosting** | Biasanya akurasi terbaik, fleksibel loss function | Lambat pelatihan, mudah overfit tanpa tuning           |
+
+
+
+## Pemilihan Model Terbaik
+
+Setelah evaluasi dengan metrik seperti RMSE, MAE, dan R², model dengan performa terbaik dipilih sebagai solusi akhir. Misalnya:
+
+- **Random Forest** dipilih karena kestabilan hasil dan akurasi yang konsisten lebih baik dibandingkan model lain.
+- Pilihan ini juga didukung oleh kemudahan tuning dan kecepatan pelatihan dibanding boosting yang cenderung lebih sensitif overfitting.
+
+
+
+## Rencana Improvement
+
+- Melakukan **hyperparameter tuning** dengan Grid Search atau Random Search untuk mengoptimalkan parameter model terbaik (misal: `n_estimators`, `max_depth`, `learning_rate`).
+- Mencoba teknik ensemble seperti stacking untuk meningkatkan performa model.
+
+
+
+## Cara Menjalankan
+
+1. Pastikan data sudah di-preprocessing dan direduksi dimensi menggunakan PCA.
+2. Jalankan skrip pelatihan model untuk masing-masing algoritma.
+3. Evaluasi hasil prediksi dan bandingkan metrik performa.
+4. Pilih model terbaik berdasarkan evaluasi.
+
 
 ## Evaluation
-Pada bagian ini anda perlu menyebutkan metrik evaluasi yang digunakan. Lalu anda perlu menjelaskan hasil proyek berdasarkan metrik evaluasi yang digunakan.
 
-Sebagai contoh, Anda memiih kasus klasifikasi dan menggunakan metrik **akurasi, precision, recall, dan F1 score**. Jelaskan mengenai beberapa hal berikut:
-- Penjelasan mengenai metrik yang digunakan
-- Menjelaskan hasil proyek berdasarkan metrik evaluasi
+## Evaluation
 
-Ingatlah, metrik evaluasi yang digunakan harus sesuai dengan konteks data, problem statement, dan solusi yang diinginkan.
+### Metrik Evaluasi yang Digunakan
 
-**Rubrik/Kriteria Tambahan (Opsional)**: 
-- Menjelaskan formula metrik dan bagaimana metrik tersebut bekerja.
+Pada proyek ini, metrik evaluasi yang digunakan adalah **Mean Squared Error (MSE)** untuk mengukur performa model regresi.
 
-**---Ini adalah bagian akhir laporan---**
+- **Mean Squared Error (MSE)** adalah rata-rata kuadrat selisih antara nilai aktual dan nilai prediksi.  
 
-_Catatan:_
-- _Anda dapat menambahkan gambar, kode, atau tabel ke dalam laporan jika diperlukan. Temukan caranya pada contoh dokumen markdown di situs editor [Dillinger](https://dillinger.io/), [Github Guides: Mastering markdown](https://guides.github.com/features/mastering-markdown/), atau sumber lain di internet. Semangat!_
-- Jika terdapat penjelasan yang harus menyertakan code snippet, tuliskan dengan sewajarnya. Tidak perlu menuliskan keseluruhan kode project, cukup bagian yang ingin dijelaskan saja.
+$$
+\text{MSE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2
+$$
+
+di mana:
+- $y_i$ adalah nilai aktual,
+- $\hat y_i$ adalah nilai prediksi,
+- $n$ adalah jumlah sampel.
+
+MSE memberikan indikasi seberapa jauh prediksi model menyimpang dari nilai sebenarnya. Nilai MSE yang lebih kecil menunjukkan model dengan performa yang lebih baik.
+
+### Hasil Evaluasi
+
+| Model    | MSE Train | MSE Test  |
+|----------|-----------|-----------|
+| KNN      | 1.093     | 1.496     |
+| Random Forest (RF) | 0.219     | 1.493     |
+| Boosting (Gabungan AdaBoost & Gradient Boosting) | 1.308     | 1.304     |
+
+- **KNN** menunjukkan performa sedang dengan MSE test cukup tinggi, menandakan model ini kurang cocok untuk data ini.
+- **Random Forest** memiliki MSE training paling kecil, menunjukkan model ini mampu fit data training dengan sangat baik, tetapi MSE test yang hampir sama dengan KNN menandakan kemungkinan overfitting atau model belum optimal.
+- **Boosting** memiliki MSE test paling rendah (1.304) dibanding KNN dan RF, walaupun MSE training-nya lebih tinggi. Ini menunjukkan boosting memberikan generalisasi yang lebih baik pada data test.
+
+### Visualisasi dan Analisis MSE
+
+![image](https://github.com/user-attachments/assets/e96bcfb8-6626-4ae4-8fa8-05a8e3789585)
+
+### Kesimpulan
+
+Dari hasil evaluasi MSE di atas, **model Boosting** dipilih sebagai model terbaik karena memberikan nilai error terkecil pada data test, yang merupakan indikasi kemampuan generalisasi terbaik dibandingkan model lainnya.
+
+Untuk peningkatan performa, disarankan melakukan **hyperparameter tuning** pada model Boosting guna menurunkan nilai error lebih lanjut dan mengurangi potensi overfitting atau underfitting.
 
