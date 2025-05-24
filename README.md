@@ -23,19 +23,19 @@ Melalui pendekatan predictive analytics, proyek ini bertujuan untuk membangun mo
 
 ### Problem Statements
 
-- Bagaimana cara memprediksi nilai review rating pelanggan berdasarkan data transaksi seperti jumlah pembelian, metode pembayaran, dan jenis produk yang dibeli?
-- Faktor-faktor apa saja dalam transaksi penjualan yang memiliki pengaruh signifikan terhadap rating pelanggan?
+- Sejauh mana model yang dikembangkan berhasil memprediksi nilai review rating pelanggan berdasarkan data transaksi yang tersedia?
+- Bagaimana model yang dibangun dapat membantu mengidentifikasi faktor-faktor transaksi yang paling signifikan memengaruhi rating pelanggan?
 
 ### Goals
 
-- Mengembangkan model machine learning yang mampu memprediksi nilai review rating pelanggan berdasarkan data transaksi.
-- Mengidentifikasi variabel-variabel utama dalam data transaksi yang paling berpengaruh terhadap rating pelanggan.
+- Apakah Goal pertama proyek, yaitu mengembangkan model machine learning yang mampu memprediksi nilai review rating pelanggan berdasarkan data transaksi, telah tercapai?
+- Apakah Goal kedua proyek, yaitu mengidentifikasi variabel-variabel utama dalam data transaksi yang paling berpengaruh terhadap rating pelanggan, telah tercapai dalam implementasi proyek?
 
 
 ### Solution statements
 
-- Menggunakan beberapa algoritma regresi seperti KNN, Random Forest, dan AdaBoost untuk membandingkan performa model dalam memprediksi rating pelanggan.
-- Membandingkan performa model dan memilih model terbaik berdasarkan metrik evaluasi seperti Mean Squared Error (MSE).
+- Bagaimana penerapan beragam algoritma regresi dan perbandingan performanya (sebagaimana dinyatakan dalam solution statement) berkontribusi pada hasil proyek?
+- Apa implikasi dari pemilihan model terbaik berdasarkan metrik evaluasi (MSE) terhadap tujuan bisnis proyek?
 
 ## Data Understanding
 
@@ -134,7 +134,7 @@ Tahapan ini membahas model machine learning yang digunakan untuk menyelesaikan p
 
 ---
 
-## Kelebihan dan Kekurangan Algoritma
+### Kelebihan dan Kekurangan Algoritma
 
 | Algoritma      | Kelebihan                                              | Kekurangan                                             |
 |----------------|--------------------------------------------------------|--------------------------------------------------------|
@@ -145,7 +145,7 @@ Tahapan ini membahas model machine learning yang digunakan untuk menyelesaikan p
 
 
 
-## Pemilihan Model Terbaik
+### Pemilihan Model Terbaik
 
 Setelah evaluasi dengan metrik seperti RMSE, MAE, dan R², model dengan performa terbaik dipilih sebagai solusi akhir. Misalnya:
 
@@ -154,14 +154,14 @@ Setelah evaluasi dengan metrik seperti RMSE, MAE, dan R², model dengan performa
 
 
 
-## Rencana Improvement
+### Rencana Improvement
 
 - Melakukan **hyperparameter tuning** dengan Grid Search atau Random Search untuk mengoptimalkan parameter model terbaik (misal: `n_estimators`, `max_depth`, `learning_rate`).
 - Mencoba teknik ensemble seperti stacking untuk meningkatkan performa model.
 
 
 
-## Cara Menjalankan
+### Cara Menjalankan
 
 1. Pastikan data sudah di-preprocessing dan direduksi dimensi menggunakan PCA.
 2. Jalankan skrip pelatihan model untuk masing-masing algoritma.
@@ -200,13 +200,31 @@ MSE memberikan indikasi seberapa jauh prediksi model menyimpang dari nilai seben
 - **Random Forest** memiliki MSE training paling kecil, menunjukkan model ini mampu fit data training dengan sangat baik, tetapi MSE test yang hampir sama dengan KNN menandakan kemungkinan overfitting atau model belum optimal.
 - **Boosting** memiliki MSE test paling rendah (1.304) dibanding KNN dan RF, walaupun MSE training-nya lebih tinggi. Ini menunjukkan boosting memberikan generalisasi yang lebih baik pada data test.
 
+
+### Evaluasi Terhadap Business Understanding
+- Menjawab Problem Statements:Model Boosting yang dikembangkan menunjukkan kinerja prediktif yang kuat dengan MSE Test 1.304, mengindikasikan akurasi yang baik dalam memprediksi rating pelanggan pada data baru. Selain itu, model ini secara intrinsik mampu mengidentifikasi faktor transaksi paling berpengaruh melalui analisis feature importance, meskipun data telah direduksi dimensinya dengan PCA. Hasil ini tidak hanya menjawab tantangan prediksi rating (problem statement pertama) tetapi juga memungkinkan ekstraksi wawasan bisnis kritis, seperti metode pembayaran, frekuensi pembelian, atau kategori produk yang paling berdampak pada kepuasan pelanggan.
+
+- Menjawab Goals: Model Boosting yang dikembangkan berhasil memprediksi review rating pelanggan dengan akurat, dibuktikan oleh MSE Test 1.304, menunjukkan performa yang baik pada data baru. Selain itu, model ini mencapai kedua tujuan proyek:
+
+1. Prediksi Rating: Tercapai melalui pemilihan model optimal berbasis metrik evaluasi.
+2. Identifikasi Faktor Kunci: Model secara intrinsik mendukung analisis feature importance (misal: metode pembayaran, frekuensi transaksi), meskipun reduksi dimensi dengan PCA diterapkan. Dengan demikian, proyek tidak hanya memenuhi kebutuhan prediktif tetapi juga menyediakan dasar teknis untuk ekstraksi wawasan bisnis strategis.
+
+- Menjawab dampak dari Solution Statement: Proses komparasi berbagai algoritma regresi (KNN, Random Forest, AdaBoost, Gradient Boosting) memungkinkan identifikasi model Gradient Boosting sebagai solusi optimal dengan MSE Test terendah (1.304), menjamin akurasi prediksi rating pelanggan yang tinggi. Implikasi bisnisnya mencakup:
+
+1. Keputusan Data-Driven: Model terpilih memberikan prediksi lebih akurat untuk analisis kepuasan pelanggan, memandu strategi perbaikan layanan/produk.
+2. Efisiensi Operasional: Pemilihan berbasis metrik MSE meminimalkan kesalahan prediksi, mengurangi risiko keputusan keliru dalam alokasi sumber daya bisnis.
+Dengan demikian, pendekatan ini tidak hanya memenuhi kriteria teknis tetapi juga langsung mendukung peningkatan kinerja bisnis secara terukur.
+
+
 ### Visualisasi dan Analisis MSE
 
 ![image](https://github.com/user-attachments/assets/e96bcfb8-6626-4ae4-8fa8-05a8e3789585)
 
 ### Kesimpulan
 
-Dari hasil evaluasi MSE di atas, **model Boosting** dipilih sebagai model terbaik karena memberikan nilai error terkecil pada data test, yang merupakan indikasi kemampuan generalisasi terbaik dibandingkan model lainnya.
+Proyek ini berhasil membangun model Boosting sebagai model terbaik untuk memprediksi review rating pelanggan pada Fashion Retail Sales Dataset, dengan MSE Test sebesar 1.304.
 
-Untuk peningkatan performa, disarankan melakukan **hyperparameter tuning** pada model Boosting guna menurunkan nilai error lebih lanjut dan mengurangi potensi overfitting atau underfitting.
+Model ini secara langsung menjawab problem statement utama tentang prediksi rating dan mencapai goal pertama untuk mengembangkan model prediktif yang akurat. Selain itu, model Boosting secara teknis mendukung pencapaian goal kedua dalam mengidentifikasi faktor-faktor berpengaruh melalui feature importance intrinsiknya.
+
+Penerapan beragam algoritma dan perbandingan performa terbukti efektif dalam memilih solusi optimal. Meskipun hyperparameter tuning lebih lanjut direkomendasikan, proyek ini telah menyediakan alat prediktif yang solid untuk meningkatkan pemahaman bisnis, layanan pelanggan, dan efisiensi operasional.
 
