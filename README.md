@@ -34,9 +34,8 @@ Melalui pendekatan predictive analytics, proyek ini bertujuan untuk membangun mo
 
 ### Solution statements
 
-- Menggunakan beberapa algoritma regresi seperti Linear Regression, Decision Tree Regressor, dan Random Forest Regressor untuk membandingkan performa model dalam memprediksi rating pelanggan.
-- Melakukan hyperparameter tuning terhadap model terbaik untuk meningkatkan akurasi prediksi berdasarkan metrik evaluasi seperti MAE (Mean Absolute Error) dan RMSE (Root Mean Squared Error).
-- Menggunakan teknik feature importance untuk mengevaluasi variabel yang paling berpengaruh terhadap prediksi rating pelanggan.
+- Menggunakan beberapa algoritma regresi seperti KNN, Random Forest, dan AdaBoost untuk membandingkan performa model dalam memprediksi rating pelanggan.
+- Membandingkan performa model dan memilih model terbaik berdasarkan metrik evaluasi seperti Mean Squared Error (MSE).
 
 ## Data Understanding
 
@@ -70,50 +69,52 @@ Dataset yang digunakan dalam proyek ini berasal dari [Fashion Retail Sales Datas
 
 
 ## Data Preparation
-Tahapan data preparation dilakukan secara berurutan sebagai berikut:
+Berikut tahapan yang dilakukan dalam proses pra-pemrosesan data:
 
-1. One-Hot Encoding
+1. **Encoding Fitur Kategorikal**  
+   - One-hot encoding pada kolom `Item Purchased` dan `Payment Method`
+   - Konversi nilai boolean ke numerik (0/1)
 
-- Fitur kategorikal Item Purchased dan Payment Method diubah menjadi format numerik menggunakan one-hot encoding.
+2. **Pembersihan dan Ekstraksi Tanggal**  
+   - Konversi `Date Purchase` ke datetime  
+   - Ekstraksi `Purchase Month` dari tanggal  
+   - Hapus kolom `Date Purchase`
 
-2. Ekstraksi Fitur dari Tanggal
+3. **Handling Missing Values**  
+   - Menghapus baris dengan nilai kosong pada `Purchase Amount (USD)` dan `Review Rating`
 
-- Kolom Date Purchase dikonversi menjadi tipe datetime.
+4. **Handling Outlier**  
+   - Menggunakan metode IQR untuk menghapus outlier pada `Purchase Amount (USD)`
 
-- Fitur Purchase Month diekstrak dari kolom tanggal untuk menangkap pola musiman.
+5. **Pemisahan Fitur dan Target**  
+   - `X`: Fitur  
+   - `y`: Target (`Review Rating`)
 
-3. Pembersihan Data
+6. **Pembagian Data**  
+   - Train: 80%  
+   - Test: 20% (`random_state=42`)
 
-- Menghapus baris dengan nilai kosong pada kolom Purchase Amount (USD) dan Review Rating.
+7. **Standarisasi Data**  
+   - Menggunakan `StandardScaler` untuk menormalkan fitur
 
-4. Drop Kolom Tidak Digunakan
+8. **Reduksi Dimensi**  
+   - PCA dengan `n_components=0.95` untuk mempertahankan 95% variansi
 
-- Kolom Date Purchase dihapus karena tidak lagi dibutuhkan setelah Purchase Month diekstrak.
+## Visualisasi
 
-5. Feature Scaling
-
-- Data numerik diskalakan menggunakan StandardScaler untuk menyeragamkan skala fitur.
-
-6. Pemisahan Data
-
-- Dataset dibagi menjadi 80% data latih dan 20% data uji untuk evaluasi model yang adil.
-
-
-### Analisis PCA
-
-![image](https://github.com/user-attachments/assets/189c48a8-f9f5-4a98-9f5d-35d86acfc90f)
+![image](https://github.com/user-attachments/assets/e08b5db6-64aa-4523-9531-692a44482347)
 
 
 ## Modeling
-# Modeling Machine Learning Regression
+### Modeling Machine Learning Regression
 
-## Deskripsi
+### Deskripsi
 
 Tahapan ini membahas model machine learning yang digunakan untuk menyelesaikan permasalahan regresi. Data sudah melalui reduksi dimensi dengan PCA sehingga pelatihan dilakukan pada fitur hasil PCA (`X_train_pca`).
 
 ---
 
-## Algoritma yang Digunakan
+### Algoritma yang Digunakan
 
 1. **K-Nearest Neighbors Regressor (KNN)**  
    - Parameter utama: `n_neighbors=5`  
@@ -167,8 +168,6 @@ Setelah evaluasi dengan metrik seperti RMSE, MAE, dan R², model dengan performa
 3. Evaluasi hasil prediksi dan bandingkan metrik performa.
 4. Pilih model terbaik berdasarkan evaluasi.
 
-
-## Evaluation
 
 ## Evaluation
 
