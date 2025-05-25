@@ -69,104 +69,111 @@ Dataset yang digunakan dalam proyek ini berasal dari [Fashion Retail Sales Datas
 
 
 ## Data Preparation
-Berikut tahapan yang dilakukan dalam proses pra-pemrosesan data:
+
+### Teknik Data Preparation
+
+Dalam proses persiapan data ini, teknik yang digunakan meliputi:  
+- **One-Hot Encoding** untuk mengubah fitur kategori menjadi numerik  
+- **Konversi tipe data tanggal** dan ekstraksi fitur waktu
+- **Penanganan Outlier** menggunakan metode IQR untuk menghilangkan nilai ekstrim 
+- **Pemisahan fitur dan target**  
+- **Pembagian dataset** menjadi data latih dan uji  
+- **Standarisasi fitur** menggunakan StandardScaler  
+- **Reduksi dimensi** dengan PCA (Principal Component Analysis)
+
+### Proses Data Preparation
 
 1. **Encoding Fitur Kategorikal**  
-   - One-hot encoding pada kolom `Item Purchased` dan `Payment Method`
-   - Konversi nilai boolean ke numerik (0/1)
+   Menggunakan `pd.get_dummies()` untuk melakukan one-hot encoding pada fitur `Item Purchased` dan `Payment Method`. Kolom boolean hasil encoding dikonversi menjadi integer 0/1 agar kompatibel dengan model.
 
-2. **Pembersihan dan Ekstraksi Tanggal**  
-   - Konversi `Date Purchase` ke datetime  
-   - Ekstraksi `Purchase Month` dari tanggal  
-   - Hapus kolom `Date Purchase`
+2. **Ekstraksi dan Pembersihan Data Tanggal**  
+   Kolom `Date Purchase` dikonversi menjadi tipe datetime dengan `pd.to_datetime()`. Fitur baru `Purchase Month` diambil dari kolom tanggal, lalu kolom tanggal asli dihapus.
 
-3. **Handling Missing Values**  
-   - Menghapus baris dengan nilai kosong pada `Purchase Amount (USD)` dan `Review Rating`
+3. **Penanganan Outlier**  
+   Menggunakan metode Interquartile Range (IQR) untuk mengidentifikasi dan menghapus data yang berada di luar batas bawah dan atas (lower bound dan upper bound) pada fitur `Purchase Amount (USD)`. Ini dilakukan agar nilai ekstrim yang dapat mempengaruhi performa model dihilangkan.
 
-4. **Handling Outlier**  
-   - Menggunakan metode IQR untuk menghapus outlier pada `Purchase Amount (USD)`
+4. **Pemisahan Fitur dan Target**  
+   Memisahkan dataset menjadi `X` (fitur) dan `y` (target), di mana targetnya adalah kolom `Review Rating`.
 
-5. **Pemisahan Fitur dan Target**  
-   - `X`: Fitur  
-   - `y`: Target (`Review Rating`)
+5. **Pembagian Dataset**  
+   Dataset dibagi menjadi data latih dan data uji dengan perbandingan 80:20 menggunakan `train_test_split` agar evaluasi model valid.
 
-6. **Pembagian Data**  
-   - Train: 80%  
-   - Test: 20% (`random_state=42`)
+6. **Standarisasi Fitur**  
+   Fitur distandarisasi dengan `StandardScaler` untuk menyamakan skala fitur sehingga model lebih stabil dan cepat konvergen.
 
-7. **Standarisasi Data**  
-   - Menggunakan `StandardScaler` untuk menormalkan fitur
+7. **Reduksi Dimensi dengan PCA**  
+   Melakukan reduksi dimensi untuk mempertahankan 95% variansi data dengan PCA agar jumlah fitur berkurang, mempercepat pelatihan, dan mengurangi risiko overfitting.
 
-8. **Reduksi Dimensi**  
-   - PCA dengan `n_components=0.95` untuk mempertahankan 95% variansi
+### Alasan Tahapan Data Preparation Dilakukan
 
-## Visualisasi
+- **One-Hot Encoding:**  
+  Mengubah data kategori menjadi format numerik yang bisa diterima oleh algoritma machine learning.
+
+- **Konversi dan ekstraksi tanggal:**  
+  Mendapatkan fitur waktu yang relevan (bulan pembelian) dari data tanggal, yang bisa berpengaruh pada perilaku pembelian.
+
+- **Penanganan Outlier:**
+  Menghilangkan nilai ekstrim berdasarkan IQR agar model tidak bias dan prediksi menjadi lebih akurat.
+
+- **Pemisahan fitur dan target:**  
+  Memudahkan proses pelatihan dan evaluasi model dengan input dan output yang jelas.
+
+- **Pembagian dataset:**  
+  Menjaga objektivitas evaluasi dengan menguji model pada data yang belum pernah dilihat.
+
+- **Standarisasi:**  
+  Mencegah bias model pada fitur dengan rentang nilai yang besar dan mempercepat proses pelatihan.
+
+- **PCA:**  
+  Mengurangi kompleksitas fitur tanpa kehilangan informasi penting, sehingga model menjadi lebih efisien dan tidak overfit.
+
+---
+
+**Jumlah fitur setelah PCA:** 49 fitur yang mewakili 95% variansi data asli.
+
+
+### **Visualisasi Kumulatif Variansi yang Dijelaskan oleh Komponen PCA**
+Berikut grafik kumulatif variansi yang dijelaskan oleh komponen PCA
 
 ![image](https://github.com/user-attachments/assets/e08b5db6-64aa-4523-9531-692a44482347)
 
 
 ## Modeling
-### Modeling Machine Learning Regression
 
-### Deskripsi
-
-Tahapan ini membahas model machine learning yang digunakan untuk menyelesaikan permasalahan regresi. Data sudah melalui reduksi dimensi dengan PCA sehingga pelatihan dilakukan pada fitur hasil PCA (`X_train_pca`).
-
----
+Pada tahap ini, dilakukan proses pembuatan model machine learning untuk menyelesaikan masalah regresi prediksi rating ulasan pelanggan. Data yang digunakan sudah melalui tahap reduksi dimensi menggunakan PCA, sehingga pelatihan model dilakukan pada fitur hasil PCA (`X_train_pca`).
 
 ### Algoritma yang Digunakan
 
 1. **K-Nearest Neighbors Regressor (KNN)**  
-   - Parameter utama: `n_neighbors=5`  
-   - Prediksi dilakukan dengan rata-rata target dari 5 tetangga terdekat.
+   - Parameter: `n_neighbors=5`  
+   - Cara kerja: Memperkirakan nilai target dengan menghitung rata-rata target dari 5 tetangga terdekat berdasarkan jarak terdekat di ruang fitur.
 
 2. **Random Forest Regressor (RF)**  
-   - Parameter utama: `n_estimators=100`, `random_state=42`  
-   - Ensemble pohon keputusan, hasil prediksi rata-rata dari semua pohon.
+   - Parameter: `n_estimators=100`, `random_state=42`  
+   - Cara kerja: Menggunakan ensemble dari 100 pohon keputusan yang dibangun secara acak, kemudian mengambil rata-rata prediksi untuk meningkatkan akurasi dan kestabilan model.
 
 3. **AdaBoost Regressor (Ada)**  
-   - Parameter utama: `n_estimators=100`, `random_state=42`  
-   - Metode boosting yang menggabungkan model lemah secara berturut-turut.
+   - Parameter: `n_estimators=100`, `random_state=42`  
+   - Cara kerja: Menggabungkan model-model lemah secara berurutan dengan fokus pada kesalahan model sebelumnya untuk memperbaiki prediksi.
 
 4. **Gradient Boosting Regressor (GB)**  
-   - Parameter utama: `n_estimators=100`, `random_state=42`  
-   - Boosting yang mengurangi error residual secara bertahap menggunakan gradien.
+   - Parameter: `n_estimators=100`, `random_state=42`  
+   - Cara kerja: Membangun model secara bertahap dengan mengurangi residual error menggunakan gradien dari fungsi loss.
 
 ---
 
-### Kelebihan dan Kekurangan Algoritma
+### Tahapan Pemodelan
 
-| Algoritma      | Kelebihan                                              | Kekurangan                                             |
-|----------------|--------------------------------------------------------|--------------------------------------------------------|
-| **KNN**        | Sederhana, tidak perlu asumsi distribusi               | Sensitif skala, lambat untuk data besar, kurang efisien di dimensi tinggi |
-| **Random Forest** | Robust terhadap overfitting, mudah tuning, kuat menangani data kompleks | Model besar, sulit interpretasi                        |
-| **AdaBoost**   | Meningkatkan akurasi, adaptif terhadap kesalahan       | Sensitif noise dan outlier                              |
-| **Gradient Boosting** | Biasanya akurasi terbaik, fleksibel loss function | Lambat pelatihan, mudah overfit tanpa tuning           |
+1. **Inisialisasi Model**  
+   Membuat instance model dengan parameter yang sudah ditentukan.
 
+2. **Pelatihan Model (Training)**  
+   Melatih model menggunakan data latih hasil reduksi dimensi (`X_train_pca`) dan target (`y_train`).
 
-
-### Pemilihan Model Terbaik
-
-Setelah evaluasi dengan metrik seperti RMSE, MAE, dan R², model dengan performa terbaik dipilih sebagai solusi akhir. Misalnya:
-
-- **Random Forest** dipilih karena kestabilan hasil dan akurasi yang konsisten lebih baik dibandingkan model lain.
-- Pilihan ini juga didukung oleh kemudahan tuning dan kecepatan pelatihan dibanding boosting yang cenderung lebih sensitif overfitting.
+3. **Prediksi**  
+   Menggunakan model yang sudah dilatih untuk memprediksi target pada data uji (`X_test_pca`).
 
 
-
-### Rencana Improvement
-
-- Melakukan **hyperparameter tuning** dengan Grid Search atau Random Search untuk mengoptimalkan parameter model terbaik (misal: `n_estimators`, `max_depth`, `learning_rate`).
-- Mencoba teknik ensemble seperti stacking untuk meningkatkan performa model.
-
-
-
-### Cara Menjalankan
-
-1. Pastikan data sudah di-preprocessing dan direduksi dimensi menggunakan PCA.
-2. Jalankan skrip pelatihan model untuk masing-masing algoritma.
-3. Evaluasi hasil prediksi dan bandingkan metrik performa.
-4. Pilih model terbaik berdasarkan evaluasi.
 
 
 ## Evaluation
