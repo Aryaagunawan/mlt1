@@ -67,75 +67,113 @@ Dataset yang digunakan dalam proyek ini berasal dari [Fashion Retail Sales Datas
 
 ![image](https://github.com/user-attachments/assets/6baf65bd-a43b-4bc5-be2e-f0c0637f0cc2)
 
-
 ## Data Preparation
 
-### Teknik Data Preparation
+- Penanganan Missing Value
 
-Dalam proses persiapan data ini, teknik yang digunakan meliputi:  
-- **One-Hot Encoding** untuk mengubah fitur kategori menjadi numerik  
-- **Konversi tipe data tanggal** dan ekstraksi fitur waktu
-- **Penanganan Outlier** menggunakan metode IQR untuk menghilangkan nilai ekstrim 
-- **Pemisahan fitur dan target**  
-- **Pembagian dataset** menjadi data latih dan uji  
-- **Standarisasi fitur** menggunakan StandardScaler  
-- **Reduksi dimensi** dengan PCA (Principal Component Analysis)
+  Purchase Amount (USD)
+   
+  Nilai yang hilang pada kolom Purchase Amount (USD) diimputasi menggunakan nilai median untuk menjaga distribusi data dan menghindari pengaruh outlier.
+```python
+  df['Purchase Amount (USD)'].fillna(df['Purchase Amount (USD)'].median(), inplace=True)
+```
+- Review Rating
+  
+  Baris yang memiliki nilai kosong pada kolom target ini dihapus karena tidak dapat dipakai dalam supervised learning.
+```python
+df.dropna(subset=['Review Rating'], inplace=True)
+```
+- Penanganan Outlier Tahap 1 (Sebelum One-Hot Encoding)
 
-### Proses Data Preparation
+  Outlier pada kolom Purchase Amount (USD) dihapus menggunakan metode Interquartile Range (IQR).
+```python
+Q1 = df['Purchase Amount (USD)'].quantile(0.25)
+Q3 = df['Purchase Amount (USD)'].quantile(0.75)
+IQR = Q3 - Q1
+lower = Q1 - 1.5 * IQR
+upper = Q3 + 1.5 * IQR
 
-1. **Encoding Fitur Kategorikal**  
-   Menggunakan `pd.get_dummies()` untuk melakukan one-hot encoding pada fitur `Item Purchased` dan `Payment Method`. Kolom boolean hasil encoding dikonversi menjadi integer 0/1 agar kompatibel dengan model.
+df = df[(df['Purchase Amount (USD)'] >= lower) & (df['Purchase Amount (USD)'] <= upper)]
+```
+- Encoding Fitur Kategorikal
 
-2. **Ekstraksi dan Pembersihan Data Tanggal**  
-   Kolom `Date Purchase` dikonversi menjadi tipe datetime dengan `pd.to_datetime()`. Fitur baru `Purchase Month` diambil dari kolom tanggal, lalu kolom tanggal asli dihapus.
+  Fitur kategori Item Purchased dan Payment Method diubah menggunakan One-Hot Encoding dengan drop_first=True untuk menghindari multikolinearitas. Hasil encoding berupa boolean dikonversi ke integer.
+```python
+df_cleaned = pd.get_dummies(df, columns=['Item Purchased', 'Payment Method'], drop_first=True)
 
-3. **Penanganan Outlier**  
-   Menggunakan metode Interquartile Range (IQR) untuk mengidentifikasi dan menghapus data yang berada di luar batas bawah dan atas (lower bound dan upper bound) pada fitur `Purchase Amount (USD)`. Ini dilakukan agar nilai ekstrim yang dapat mempengaruhi performa model dihilangkan.
+boolean_cols = df_cleaned.select_dtypes(include='bool').columns
+df_cleaned[boolean_cols] = df_cleaned[boolean_cols].astype(int)
+```
+- Ekstraksi dan Transformasi Data Tanggal
 
-4. **Pemisahan Fitur dan Target**  
-   Memisahkan dataset menjadi `X` (fitur) dan `y` (target), di mana targetnya adalah kolom `Review Rating`.
+  Kolom Date Purchase dikonversi ke tipe datetime (dayfirst=True), kemudian diekstrak fitur baru Purchase Month. Kolom asli dihapus.
+```python
+df_cleaned['Date Purchase'] = pd.to_datetime(df['Date Purchase'], dayfirst=True)
+df_cleaned['Purchase Month'] = df_cleaned['Date Purchase'].dt.month
+df_cleaned.drop(columns='Date Purchase', inplace=True)
+```
+- Penanganan Outlier Tahap 2 (Setelah Encoding)
 
-5. **Pembagian Dataset**  
-   Dataset dibagi menjadi data latih dan data uji dengan perbandingan 80:20 menggunakan `train_test_split` agar evaluasi model valid.
+  Outlier pada kolom Purchase Amount (USD) dicek kembali dan dihapus dari dataset hasil encoding.
+```python
+df_cleaned_outlier = df_cleaned.copy()
+Q1 = df_cleaned_outlier['Purchase Amount (USD)'].quantile(0.25)
+Q3 = df_cleaned_outlier['Purchase Amount (USD)'].quantile(0.75)
+IQR = Q3 - Q1
+lower_bound = Q1 - 1.5 * IQR
+upper_bound = Q3 + 1.5 * IQR
 
-6. **Standarisasi Fitur**  
-   Fitur distandarisasi dengan `StandardScaler` untuk menyamakan skala fitur sehingga model lebih stabil dan cepat konvergen.
+df_cleaned_outlier = df_cleaned_outlier[
+    (df_cleaned_outlier['Purchase Amount (USD)'] >= lower_bound) & 
+    (df_cleaned_outlier['Purchase Amount (USD)'] <= upper_bound)
+]
+```
+- Pemisahan Fitur dan Target
 
-7. **Reduksi Dimensi dengan PCA**  
-   Melakukan reduksi dimensi untuk mempertahankan 95% variansi data dengan PCA agar jumlah fitur berkurang, mempercepat pelatihan, dan mengurangi risiko overfitting.
+  Dataset dipisahkan menjadi fitur (X) dan target (y)
+```python
+X = df_cleaned_outlier.drop('Review Rating', axis=1)
+y = df_cleaned_outlier['Review Rating']
+```
+- Pembagian Dataset
 
-### Alasan Tahapan Data Preparation Dilakukan
+  Data dibagi menjadi train dan test set dengan proporsi 80:20.
+```python
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+```
+- Standardisasi Fitur
 
-- **One-Hot Encoding:**  
-  Mengubah data kategori menjadi format numerik yang bisa diterima oleh algoritma machine learning.
+  Semua fitur dinormalisasi menggunakan StandardScaler.
+```python
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+```
+- Reduksi Dimensi dengan PCA
 
-- **Konversi dan ekstraksi tanggal:**  
-  Mendapatkan fitur waktu yang relevan (bulan pembelian) dari data tanggal, yang bisa berpengaruh pada perilaku pembelian.
+  Reduksi dimensi dilakukan dengan PCA (Principal Component Analysis)
+```python
+pca = PCA(n_components=0.95, random_state=42)
+X_train_pca = pca.fit_transform(X_train_scaled)
+X_test_pca = pca.transform(X_test_scaled)
 
-- **Penanganan Outlier:**
-  Menghilangkan nilai ekstrim berdasarkan IQR agar model tidak bias dan prediksi menjadi lebih akurat.
+print("Jumlah fitur setelah PCA:", X_train_pca.shape[1])
+```
+- Visualisasi Variansi Kumulatif PCA
+```python
+plt.figure(figsize=(8, 5))
+plt.plot(np.cumsum(pca.explained_variance_ratio_), marker='o')
+plt.xlabel('Jumlah Komponen')
+plt.ylabel('Kumulatif Variansi yang Dijelaskan')
+plt.title('Explained Variance vs. Number of Components')
+plt.grid(True)
+plt.axhline(y=0.95, color='r', linestyle='--', label='95% Variansi')
+plt.legend()
+plt.tight_layout()
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/374f5c9e-f9db-4d88-a07b-997cabbae8a8)
 
-- **Pemisahan fitur dan target:**  
-  Memudahkan proses pelatihan dan evaluasi model dengan input dan output yang jelas.
-
-- **Pembagian dataset:**  
-  Menjaga objektivitas evaluasi dengan menguji model pada data yang belum pernah dilihat.
-
-- **Standarisasi:**  
-  Mencegah bias model pada fitur dengan rentang nilai yang besar dan mempercepat proses pelatihan.
-
-- **PCA:**  
-  Mengurangi kompleksitas fitur tanpa kehilangan informasi penting, sehingga model menjadi lebih efisien dan tidak overfit.
-
----
-
-**Jumlah fitur setelah PCA:** 49 fitur yang mewakili 95% variansi data asli.
-
-
-### **Visualisasi Kumulatif Variansi yang Dijelaskan oleh Komponen PCA**
-Berikut grafik kumulatif variansi yang dijelaskan oleh komponen PCA
-
-![image](https://github.com/user-attachments/assets/e08b5db6-64aa-4523-9531-692a44482347)
 
 
 ## Modeling
