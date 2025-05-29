@@ -194,10 +194,6 @@ Pada tahap ini, dilakukan proses pembuatan model machine learning untuk menyeles
    - Parameter: `n_estimators=100`, `random_state=42`  
    - Cara kerja: Menggabungkan model-model lemah secara berurutan dengan fokus pada kesalahan model sebelumnya untuk memperbaiki prediksi.
 
-4. **Gradient Boosting Regressor (GB)**  
-   - Parameter: `n_estimators=100`, `random_state=42`  
-   - Cara kerja: Membangun model secara bertahap dengan mengurangi residual error menggunakan gradien dari fungsi loss.
-
 ---
 
 ### Tahapan Pemodelan
@@ -239,22 +235,22 @@ MSE memberikan indikasi seberapa jauh prediksi model menyimpang dari nilai seben
 |----------|-----------|-----------|
 | KNN      | 1.093     | 1.496     |
 | Random Forest (RF) | 0.219     | 1.493     |
-| Boosting (Gabungan AdaBoost & Gradient Boosting) | 1.308     | 1.304     |
+| AdaBoost | 1.308     | 1.304     |
 
 - **KNN** menunjukkan performa sedang dengan MSE test cukup tinggi, menandakan model ini kurang cocok untuk data ini.
 - **Random Forest** memiliki MSE training paling kecil, menunjukkan model ini mampu fit data training dengan sangat baik, tetapi MSE test yang hampir sama dengan KNN menandakan kemungkinan overfitting atau model belum optimal.
-- **Boosting** memiliki MSE test paling rendah (1.304) dibanding KNN dan RF, walaupun MSE training-nya lebih tinggi. Ini menunjukkan boosting memberikan generalisasi yang lebih baik pada data test.
+- **AdaBoost** memiliki MSE test paling rendah (1.304) dibanding KNN dan RF, walaupun MSE training-nya lebih tinggi. Ini menunjukkan memberikan generalisasi yang lebih baik pada data test.
 
 
 ### Evaluasi Terhadap Business Understanding
-- Menjawab Problem Statements:Model Boosting yang dikembangkan menunjukkan kinerja prediktif yang kuat dengan MSE Test 1.304, mengindikasikan akurasi yang baik dalam memprediksi rating pelanggan pada data baru. Selain itu, model ini secara intrinsik mampu mengidentifikasi faktor transaksi paling berpengaruh melalui analisis feature importance, meskipun data telah direduksi dimensinya dengan PCA. Hasil ini tidak hanya menjawab tantangan prediksi rating (problem statement pertama) tetapi juga memungkinkan ekstraksi wawasan bisnis kritis, seperti metode pembayaran, frekuensi pembelian, atau kategori produk yang paling berdampak pada kepuasan pelanggan.
+- Menjawab Problem Statements:Model AdaBoost yang dikembangkan menunjukkan kinerja prediktif yang kuat dengan MSE Test 1.304, mengindikasikan akurasi yang baik dalam memprediksi rating pelanggan pada data baru. Selain itu, model ini secara intrinsik mampu mengidentifikasi faktor transaksi paling berpengaruh melalui analisis feature importance, meskipun data telah direduksi dimensinya dengan PCA. Hasil ini tidak hanya menjawab tantangan prediksi rating (problem statement pertama) tetapi juga memungkinkan ekstraksi wawasan bisnis kritis, seperti metode pembayaran, frekuensi pembelian, atau kategori produk yang paling berdampak pada kepuasan pelanggan.
 
-- Menjawab Goals: Model Boosting yang dikembangkan berhasil memprediksi review rating pelanggan dengan akurat, dibuktikan oleh MSE Test 1.304, menunjukkan performa yang baik pada data baru. Selain itu, model ini mencapai kedua tujuan proyek:
+- Menjawab Goals: Model Adaboost yang dikembangkan berhasil memprediksi review rating pelanggan dengan akurat, dibuktikan oleh MSE Test 1.304, menunjukkan performa yang baik pada data baru. Selain itu, model ini mencapai kedua tujuan proyek:
 
 1. Prediksi Rating: Tercapai melalui pemilihan model optimal berbasis metrik evaluasi.
 2. Identifikasi Faktor Kunci: Model secara intrinsik mendukung analisis feature importance (misal: metode pembayaran, frekuensi transaksi), meskipun reduksi dimensi dengan PCA diterapkan. Dengan demikian, proyek tidak hanya memenuhi kebutuhan prediktif tetapi juga menyediakan dasar teknis untuk ekstraksi wawasan bisnis strategis.
 
-- Menjawab dampak dari Solution Statement: Proses komparasi berbagai algoritma regresi (KNN, Random Forest, AdaBoost, Gradient Boosting) memungkinkan identifikasi model Gradient Boosting sebagai solusi optimal dengan MSE Test terendah (1.304), menjamin akurasi prediksi rating pelanggan yang tinggi. Implikasi bisnisnya mencakup:
+- Menjawab dampak dari Solution Statement: Proses komparasi berbagai algoritma regresi (KNN, Random Forest, AdaBoost) memungkinkan identifikasi model AdaBoost sebagai solusi optimal dengan MSE Test terendah (1.304), menjamin akurasi prediksi rating pelanggan yang tinggi. Implikasi bisnisnya mencakup:
 
 1. Keputusan Data-Driven: Model terpilih memberikan prediksi lebih akurat untuk analisis kepuasan pelanggan, memandu strategi perbaikan layanan/produk.
 2. Efisiensi Operasional: Pemilihan berbasis metrik MSE meminimalkan kesalahan prediksi, mengurangi risiko keputusan keliru dalam alokasi sumber daya bisnis.
@@ -263,13 +259,14 @@ Dengan demikian, pendekatan ini tidak hanya memenuhi kriteria teknis tetapi juga
 
 ### Visualisasi dan Analisis MSE
 
-![image](https://github.com/user-attachments/assets/e96bcfb8-6626-4ae4-8fa8-05a8e3789585)
+![image](https://github.com/user-attachments/assets/8c4ddf25-b5bb-4f19-b2e0-96c9bd37b79d)
+
 
 ### Kesimpulan
 
-Proyek ini berhasil membangun model Boosting sebagai model terbaik untuk memprediksi review rating pelanggan pada Fashion Retail Sales Dataset, dengan MSE Test sebesar 1.304.
+Proyek ini berhasil membangun model AdaBoost sebagai model terbaik untuk memprediksi review rating pelanggan pada Fashion Retail Sales Dataset, dengan MSE Test sebesar 1.304.
 
-Model ini secara langsung menjawab problem statement utama tentang prediksi rating dan mencapai goal pertama untuk mengembangkan model prediktif yang akurat. Selain itu, model Boosting secara teknis mendukung pencapaian goal kedua dalam mengidentifikasi faktor-faktor berpengaruh melalui feature importance intrinsiknya.
+Model ini secara langsung menjawab problem statement utama tentang prediksi rating dan mencapai goal pertama untuk mengembangkan model prediktif yang akurat. Selain itu, model AdaBoost secara teknis mendukung pencapaian goal kedua dalam mengidentifikasi faktor-faktor berpengaruh melalui feature importance intrinsiknya.
 
 Penerapan beragam algoritma dan perbandingan performa terbukti efektif dalam memilih solusi optimal. Meskipun hyperparameter tuning lebih lanjut direkomendasikan, proyek ini telah menyediakan alat prediktif yang solid untuk meningkatkan pemahaman bisnis, layanan pelanggan, dan efisiensi operasional.
 
